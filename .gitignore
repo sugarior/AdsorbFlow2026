@@ -1,0 +1,12 @@
+configs/oc22_stats.pt
+outputs/debug_10/version_0/checkpoints/best_model.pt
+*.pt
+*.log
+*.cif
+__pycache__/
+*.py[cod]
+outputs/
+results/
+wandb/
+.vscode/
+*.json
