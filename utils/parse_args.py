@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debug_13')
+    parser.add_argument('--exp_name', type=str, default='debug_14')
 
     #账户设置
     parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026')
@@ -11,9 +11,9 @@ def parse_args():
     #模型设置
     parser.add_argument('--model', type=str, default='egnn_vae')
     parser.add_argument('--nf', type=int, default=128)
-    parser.add_argument('--latent_nf', type=int, default=64)
+    parser.add_argument('--latent_nf', type=int, default=32)
     parser.add_argument('--context_node_nf', type=int, default=0)
-    parser.add_argument('--n_layers', type=int, default=8)
+    parser.add_argument('--n_layers', type=int, default=4)
     parser.add_argument('--attention', action='store_true',default=False)
     parser.add_argument('--tanh', action='store_true',default=True)
     parser.add_argument('--norm_constant', type=float, default=1.0)
@@ -49,7 +49,7 @@ def parse_args():
     parser.add_argument('--tqdm_ncols', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--probabilistic_model',default='vae', choices=['vae', 'flow'])
+    parser.add_argument('--probabilistic_model',default='flow', choices=['vae', 'flow'])
     parser.add_argument('--global_seed', type=int, default=42)
     parser.add_argument('--dtype', type=str, default='float32', choices=['float16', 'float32', 'float64'])
     parser.add_argument('--log_every', type=int, default=10)
