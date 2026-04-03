@@ -2,10 +2,10 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debug_14')
+    parser.add_argument('--exp_name', type=str, default='debugflow_2')
 
     #账户设置
-    parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026')
+    parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026-flow')
     parser.add_argument('--wandb_entity', type=str, default='zzwang')
 
     #模型设置
@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument('--context_node_nf', type=int, default=0)
     parser.add_argument('--n_layers', type=int, default=4)
     parser.add_argument('--attention', action='store_true',default=False)
-    parser.add_argument('--tanh', action='store_true',default=True)
+    parser.add_argument('--tanh', action='store_true',default=False)
     parser.add_argument('--norm_constant', type=float, default=1.0)
     parser.add_argument('--inv_sublayers', type=int, default=2, help='每个 Block 内部特征更新层数')
     parser.add_argument('--sin_embedding', action='store_true',default=False)

@@ -50,7 +50,7 @@ class EGNN_dynamics(nn.Module):
     def unwrap_forward(self):
         return self._forward
 
-    def _forward(self, t, xh, node_mask, edge_index,edge_attr, context=None,batch_idx=None):
+    def _forward(self, t, xh, node_mask, edge_index,edge_attr, context=None,batch_idx=None,adsorbate_mask =None):
         
         xh = xh* node_mask
         x = xh[:, 0:self.n_dims].clone()
@@ -75,7 +75,27 @@ class EGNN_dynamics(nn.Module):
         
         h_final, x_final = self.egnn(h, x, edge_index, edge_attr, node_mask)
         vel = (x_final - x) * node_mask  # This masking operation is redundant but just in case
-        
+        # if adsorbate_mask is not None:
+    
+        #     num_ads = adsorbate_mask.sum() + 1e-8
+        #     mean_vel = (vel * adsorbate_mask).sum(dim=0, keepdim=True) / num_ads
+            
+        #     # 2. 减去平均速度，找回“负位移”
+        #     # 这样有一半原子会相对向负方向动
+        #     vel = (vel - mean_vel) * adsorbate_mask
+        # with torch.no_grad():
+        #     # 1. 检查正负分布
+        #     pos_elements = (vel > 0).sum().item()
+        #     neg_elements = (vel < 0).sum().item()
+        #     zero_elements = (vel == 0).sum().item()
+            
+        #     print(f"🕵️ 方向感审计:")
+        #     print(f"-> 正位移分量数: {pos_elements}")
+        #     print(f"-> 负位移分量数: {neg_elements}")
+        #     print(f"-> 零位移分量数: {zero_elements}")
+            
+        #     # 2. 检查每一维的均值
+        #     print(f"-> 速度分量均值 (X,Y,Z): {vel.mean(dim=0).cpu().numpy()}")
 
         if context is not None:
             h_final = h_final[:, :-self.context_node_nf]

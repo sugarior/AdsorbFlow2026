@@ -461,7 +461,7 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
                 f"1 / norm_value = {1. / max_norm_value}"
             )
 
-    def phi(self, t, xt, node_mask, edge_index, edge_attr, context, batch_idx):
+    def phi(self, t, xt, node_mask, edge_index, edge_attr, context, batch_idx,adsorbate_mask):
         # # TODO: check the frequencies buffer. input is embedding to get better performance.
         # if self.time_embed:
         #     t = self.frequencies * t[..., None]
@@ -474,7 +474,7 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
             t_emb = self.frequencies * t[..., None]
             t_emb = torch.cat((t_emb.cos(), t_emb.sin()), dim=-1)
             t_node_aware = t_emb[batch_idx]
-        net_out = self.dynamics._forward(t_node_aware, xt, node_mask, edge_index, edge_attr, context, batch_idx)
+        net_out = self.dynamics._forward(t_node_aware, xt, node_mask, edge_index, edge_attr, context, batch_idx,adsorbate_mask)
         return net_out
     
 
@@ -808,7 +808,7 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
         
         xht = torch.cat([xt, z0_h], dim=1)
         # 5. 神经网络预测瞬时速度 vt
-        vt = self.phi(t, xht, node_mask, edge_index, edge_attr, context, batch_idx)
+        vt = self.phi(t, xht, node_mask, edge_index, edge_attr, context, batch_idx,adsorbate_mask)
 
         vt =vt[:, :self.n_dims] 
         
