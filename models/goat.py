@@ -863,7 +863,8 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
                 edge_index, 
                 edge_attr, 
                 context,
-                batch_idx
+                batch_idx,
+                adsorbate_mask
             )
 
             vt_x = vt_combined[:, :self.n_dims] * adsorbate_mask
