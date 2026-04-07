@@ -113,7 +113,7 @@ def main(args):
     # 8. 断点续训 (保持原样)
     begin_epoch = 0
     if args.resume is not None:
-        model, model_ema,optim, begin_epoch, best_val_loss = load_checkpoint(model, model_ema,optim,args.resume,device)
+        model, model_ema,optim, begin_epoch, _ = load_checkpoint(model, model_ema,optim,args.resume,device)
 
         for param_group in optim.param_groups:
             param_group['lr'] = args.lr

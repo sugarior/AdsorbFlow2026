@@ -103,9 +103,9 @@ def train_epoch(args, loader, epoch, model, model_ema, ema, device, dtype, optim
             wandb.log({
                 "train/step": current_global_step,
                 "train/step_loss": current_loss,
-                # "train/rec_error": loss_dict['rec_error'].item(),
-                # "train/kl_h": loss_dict['kl_h'].item(),
-                # "train/kl_x": loss_dict['kl_x'].item(),
+                "train/rec_error": loss_dict['rec_error'].item(),
+                "train/kl_h": loss_dict['kl_h'].item(),
+                "train/kl_x": loss_dict['kl_x'].item(),
                 })
     
     avg_loss = total_loss / n_batches

@@ -2,10 +2,10 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debug_13')
+    parser.add_argument('--exp_name', type=str, default='debug_vae_1_kl1-nlayer8')
 
     #账户设置
-    parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026')
+    parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026-vae')
     parser.add_argument('--wandb_entity', type=str, default='zzwang')
 
     #模型设置
@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('--sin_embedding', action='store_true',default=False)
     parser.add_argument('--normalization_factor', type=float, default=1.0)
     parser.add_argument('--aggregation_method', type=str, default='mean', choices=['mean', 'sum', 'max'])
-    parser.add_argument('--kl_weight', type=float, default=0.01)
+    parser.add_argument('--kl_weight', type=float, default=1)
     parser.add_argument('--tag_nf', type=int, default=3)
     #数据设置
     parser.add_argument('--dataset', type=str, default='oc22')
@@ -38,9 +38,9 @@ def parse_args():
 
     #训练设置
     parser.add_argument('--optimizer', type=str, default='adam', choices=['adam', 'sgd'])
-    parser.add_argument('--resume', type=str, default=None)
+    parser.add_argument('--resume', type=str, default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_vae_1_kl0.01-nlayer4/version_2/checkpoints/best_model.pt')
     parser.add_argument('--vae_path',type=str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_10/version_0/checkpoints/best_model.pt')
-    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_11/version_0/checkpoints/best_model.pt')
+    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_vae_1_kl1-nlayer8/version_1/checkpoints/best_model.pt')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--test_epochs', type=int, default=5)
     parser.add_argument('--lr', type=float, default=1e-5)
