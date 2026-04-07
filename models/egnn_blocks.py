@@ -58,13 +58,19 @@ class EGNN_dynamics(nn.Module):
 
         original_h_dims = h.size(1)
 
-        #这一段处理时间看不懂
+        # 时间条件：支持 (1) 标量 (2) 每图标量 [B] (3) 每图嵌入 [B,D] 再广播 (4) 每节点嵌入 [N,D]（如 phi 里已做 t_emb[batch_idx]）
         if self.condition_time:
-            if t.numel() == 1: # 标量情况
+            n_nodes = xh.size(0)
+            if t.numel() == 1:
                 h_time = torch.empty_like(h[:, 0:1]).fill_(t.item())
-            else: # 向量情况 [Batch_Size]
-                # 利用 batch_idx 像发传单一样把 t 发给每个原子
-                h_time = t[batch_idx]# [Total_N, 1]
+            elif t.dim() == 2 and t.size(0) == n_nodes:
+                h_time = t
+            elif t.dim() == 2:
+                h_time = t[batch_idx]
+            elif t.dim() == 1:
+                h_time = t[batch_idx].unsqueeze(-1)
+            else:
+                raise ValueError(f"EGNN_dynamics: unexpected time tensor shape {tuple(t.shape)}")
             h = torch.cat([h, h_time], dim=1)
 
         if context is not None:

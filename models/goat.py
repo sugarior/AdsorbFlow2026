@@ -474,6 +474,8 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
             t_emb = self.frequencies * t[..., None]
             t_emb = torch.cat((t_emb.cos(), t_emb.sin()), dim=-1)
             t_node_aware = t_emb[batch_idx]
+        else:
+            t_node_aware = t
         net_out = self.dynamics._forward(t_node_aware, xt, node_mask, edge_index, edge_attr, context, batch_idx,adsorbate_mask)
         return net_out
     
