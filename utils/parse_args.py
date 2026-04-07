@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debugflow_3_vae_648')
+    parser.add_argument('--exp_name', type=str, default='debugflow_3_vae_648_All')
 
     #账户设置
     parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026-flow')
@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--cutoff', type=float, default=5.0)
     parser.add_argument('--oc22_stats_path', type=str, default='./configs/oc22_stats.pt')
     parser.add_argument('--num_atom_types', type=int, default=100)
-    parser.add_argument('--cif_save_path',type = str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/cif/debug11')
+    parser.add_argument('--cif_save_path',type = str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/cif/debug_flow_vae648')
     #文件夹设置
     parser.add_argument('--output_dir', type=str, default='./outputs')
 
@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default='adam', choices=['adam', 'sgd'])
     parser.add_argument('--resume', type=str, default=None)
     parser.add_argument('--vae_path',type=str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_vae_1_kl1-nlayer8/version_1/checkpoints/best_model.pt')
-    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debugflow_2/version_0/checkpoints/best_model.pt')
+    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debugflow_3_vae_648/version_2/checkpoints/best_model.pt')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--test_epochs', type=int, default=5)
     parser.add_argument('--lr', type=float, default=1e-5)

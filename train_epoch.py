@@ -225,19 +225,20 @@ def evaluate_flow_sample(model, loader, args, device, dtype):
         x_pred_phys = uf.denormalize_pos(x_pred_norm, args.pos_mean, args.pos_std)
         if i % 10 == 0:
             mask = batch_idx == 0
-            uf.export_comparison_cif(
-                pos_true=x_true_phys[mask],
-                pos_rec=x_pred_phys[mask],
-                atomic_numbers=batch.atomic_numbers[mask],
-                cell=batch.cell[0],
-                save_path=args.cif_save_path,
-                sample_idx=i,
-                adsorbate_mask=adsorbate_mask[mask],
-            )
+            # uf.export_comparison_cif(
+            #     pos_true=x_true_phys[mask],
+            #     pos_rec=x_pred_phys[mask],
+            #     #pos_rec=x_init[mask],
+            #     atomic_numbers=batch.atomic_numbers[mask],
+            #     cell=batch.cell[0],
+            #     save_path=args.cif_save_path,
+            #     sample_idx=i,
+            #     adsorbate_mask=adsorbate_mask[mask],
+            # )
         i += 1
-        x_pred_xy = x_pred_phys[:, :2]
-        x_true_xy = x_true_phys[:, :2]
-        dist = torch.norm(x_pred_xy - x_true_xy, p=2, dim=-1)
+        # x_pred_xy = x_pred_phys[:, :2]
+        # x_true_xy = x_true_phys[:, :2]
+        dist = torch.norm(x_pred_phys - x_true_phys, p=2, dim=-1)
         current_mae = (dist * adsorbate_mask.squeeze()).sum() / (adsorbate_mask.sum() + 1e-8)
         results.append(current_mae.item())
     return results
