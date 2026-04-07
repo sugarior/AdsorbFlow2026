@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default='adam', choices=['adam', 'sgd'])
     parser.add_argument('--resume', type=str, default=None)
     parser.add_argument('--vae_path',type=str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_10/version_0/checkpoints/best_model.pt')
-    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_11/version_0/checkpoints/best_model.pt')
+    parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debugflow_2/version_0/checkpoints/best_model.pt')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--test_epochs', type=int, default=5)
     parser.add_argument('--lr', type=float, default=1e-5)

@@ -139,8 +139,8 @@ if __name__ == "__main__":
     # 3. 将其挂载到 args 并在训练前送到 GPU
     args.atom_lut = lut.to(device)
 
-    debug_eval_recon(args,device,dtype)
-
+    #debug_eval_recon(args,device,dtype)
+    debug_eval_flow_sample(args,device,dtype)
 
     #debug_vae(args, next(iter(get_dataloaders(args)['train'])), device)
     #debug_data_info(args)
