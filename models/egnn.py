@@ -82,7 +82,7 @@ class EquivariantUpdate(nn.Module):
         self.coords_range = coords_range
         input_edge = hidden_nf * 2 + edges_in_d
         layer = nn.Linear(hidden_nf, 1, bias=False)
-        torch.nn.init.xavier_uniform_(layer.weight, gain=0.001)
+        torch.nn.init.xavier_uniform_(layer.weight, gain=0.1)
         self.coord_mlp = nn.Sequential(
             nn.Linear(input_edge, hidden_nf),
             act_fn,
