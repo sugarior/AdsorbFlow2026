@@ -471,7 +471,14 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
         # net_out = self.dynamics._forward(t, x, node_mask, edge_mask, context)
 
         if self.time_embed:
-            t_emb = self.frequencies * t[..., None]
+            # odeint 传入的 t 常为 0 维或单元素；必须先变成 [B] 再嵌入，否则 t_emb 成 [D] 一维，
+            # t_emb[batch_idx] 变 [N] 一维，_forward 会拼成 [N,1] 而非 [N,time_nf]，与 EGNN in_features 不一致。
+            t_b = t.reshape(-1).to(device=self.frequencies.device, dtype=self.frequencies.dtype)
+            if batch_idx is not None:
+                bs = int(batch_idx.max().item()) + 1
+                if t_b.numel() == 1:
+                    t_b = t_b.expand(bs)
+            t_emb = self.frequencies * t_b[..., None]
             t_emb = torch.cat((t_emb.cos(), t_emb.sin()), dim=-1)
             t_node_aware = t_emb[batch_idx]
         else:
