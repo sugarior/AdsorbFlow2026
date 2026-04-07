@@ -195,6 +195,54 @@ def evaluate_reconstruction(model, loader, args,device,dtype):
 
     return results
 
+@torch.no_grad()
+def evaluate_flow_sample(model, loader, args, device, dtype):
+    """
+    Flow：x_init → sample（潜空间 flow + VAE 解码）→ 反归一化；
+    与 evaluate_reconstruction 一致：吸附原子 2D 距离、按 adsorbate_mask 加权平均。
+    model 须为 GeometricOptimalTransportFlow。
+    """
+    model.eval()
+    results = []
+    loader = tqdm(loader, desc="flow sample eval", ncols=args.tqdm_ncols)
+    i = 0
+    for batch in loader:
+        batch.to(device)
+        x_true_phys = batch.pos_relaxed.to(device)
+        x, h, x_init, u_target, node_mask, edge_index, edge_attr, adsorbate_mask, batch_idx = prepare_batch_data(
+            args, batch, device, dtype, partition="Test"
+        )
+        x_pred_norm, _ = model.sample(
+            x_init,
+            h,
+            node_mask,
+            edge_index,
+            edge_attr,
+            context=None,
+            adsrobate_mask=adsorbate_mask,
+            batch_idx=batch_idx,
+        )
+        x_pred_phys = uf.denormalize_pos(x_pred_norm, args.pos_mean, args.pos_std)
+        if i % 10 == 0:
+            mask = batch_idx == 0
+            uf.export_comparison_cif(
+                pos_true=x_true_phys[mask],
+                pos_rec=x_pred_phys[mask],
+                atomic_numbers=batch.atomic_numbers[mask],
+                cell=batch.cell[0],
+                save_path=args.cif_save_path,
+                sample_idx=i,
+                adsorbate_mask=adsorbate_mask[mask],
+            )
+        i += 1
+        x_pred_xy = x_pred_phys[:, :2]
+        x_true_xy = x_true_phys[:, :2]
+        dist = torch.norm(x_pred_xy - x_true_xy, p=2, dim=-1)
+        current_mae = (dist * adsorbate_mask.squeeze()).sum() / (adsorbate_mask.sum() + 1e-8)
+        results.append(current_mae.item())
+    return results
+
+
 def load_model_weights(model, checkpoint_path, device):
     """
     大师级权重加载器：

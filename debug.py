@@ -2,7 +2,7 @@ from utils.parse_args import parse_args
 from configs.oc_dataset_config import get_dataset_info
 from ocp_data.get_oc_datasets import get_dataloaders
 from ocp_data.set_dataset_path import set_path
-from train_epoch import prepare_batch_data,test_adsorb,evaluate_reconstruction,load_model_weights
+from train_epoch import prepare_batch_data,test_adsorb,evaluate_reconstruction,load_model_weights,evaluate_flow_sample
 import torch
 from models.get_models import get_autoencoder,get_goat
 import numpy as np
@@ -71,6 +71,15 @@ def debug_eval_recon(args,device,dtype):
     model = load_model_weights(model,args.test_checkpoint,device)
 
     results = evaluate_reconstruction(model,loader,args,device,dtype)
+    analyze_results(results)
+
+def debug_eval_flow_sample(args, device, dtype):
+    assert args.probabilistic_model == "flow"
+    flow_ckpt = args.test_checkpoint
+    model, _, _ = get_goat(args, device)
+    model = load_model_weights(model, flow_ckpt, device)
+    loader = get_dataloaders(args)['val']
+    results = evaluate_flow_sample(model, loader, args, device, dtype)
     analyze_results(results)
 
 def analyze_results(results):
