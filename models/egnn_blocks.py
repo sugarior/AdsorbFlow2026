@@ -343,8 +343,8 @@ class EGNN_decoder(nn.Module):
         x = xh[:, :self.n_dims].clone() # 潜坐标 [Total_N, 3]
         h = xh[:, self.n_dims:].clone() # 潜特征 [Total_N, latent_nf]
     
-        x = x * node_mask
-        h = h * node_mask
+        # x = x * node_mask
+        # h = h * node_mask
 
         if context is not None:
             if batch_idx is None:
@@ -354,7 +354,7 @@ class EGNN_decoder(nn.Module):
             h = torch.cat([h, context_ext], dim=1) 
 
         h_dec, x_dec = self.egnn(
-            h, x, edge_index, 
+            h, x, edge_index=edge_index, 
             edge_attr=edge_attr, 
             node_mask=node_mask
         )

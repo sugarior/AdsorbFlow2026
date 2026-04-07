@@ -885,7 +885,7 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
         out = odeint(
             wrapper, z, t_list, method=self.method, rtol=self._rtol, atol=self._atol
         )
-        print(f"wrapper_count: {self.wrapper_count}")
+        #print(f"wrapper_count: {self.wrapper_count}")
         # print(f"time_steps: {self.time_steps}")
         return out
 
@@ -1092,9 +1092,9 @@ class GeometricOptimalTransportFlow(torch.nn.Module):
 
         z0 = torch.cat([z_x, z_h], dim=1)
 
-        z1 = self.decode(z0, node_mask, edge_index, edge_attr, context,batch_idx,adsrobate_mask)
+        z1 = self.decode(z0, node_mask, edge_index, edge_attr, context,batch_idx,adsrobate_mask)[-1]
 
-        x_relaxed,h_relaxed =self.vae.decoder._forward(z1, node_mask, edge_index, edge_attr, context)
+        x_relaxed,h_relaxed =self.vae.decoder._forward(xh=z1, node_mask=node_mask, edge_index=edge_index, edge_attr=edge_attr, context=context,batch_idx=batch_idx)
 
         return x_relaxed, h_relaxed
     

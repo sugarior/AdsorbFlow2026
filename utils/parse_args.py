@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debugflow_2')
+    parser.add_argument('--exp_name', type=str, default='debugflow_3_vae_648')
 
     #账户设置
     parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026-flow')
@@ -11,11 +11,11 @@ def parse_args():
     #模型设置
     parser.add_argument('--model', type=str, default='egnn_vae')
     parser.add_argument('--nf', type=int, default=128)
-    parser.add_argument('--latent_nf', type=int, default=32)
+    parser.add_argument('--latent_nf', type=int, default=64)
     parser.add_argument('--context_node_nf', type=int, default=0)
-    parser.add_argument('--n_layers', type=int, default=4)
+    parser.add_argument('--n_layers', type=int, default=8)
     parser.add_argument('--attention', action='store_true',default=False)
-    parser.add_argument('--tanh', action='store_true',default=False)
+    parser.add_argument('--tanh', action='store_true',default=True)
     parser.add_argument('--norm_constant', type=float, default=1.0)
     parser.add_argument('--inv_sublayers', type=int, default=2, help='每个 Block 内部特征更新层数')
     parser.add_argument('--sin_embedding', action='store_true',default=False)
@@ -39,7 +39,7 @@ def parse_args():
     #训练设置
     parser.add_argument('--optimizer', type=str, default='adam', choices=['adam', 'sgd'])
     parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--vae_path',type=str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_10/version_0/checkpoints/best_model.pt')
+    parser.add_argument('--vae_path',type=str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debug_vae_1_kl1-nlayer8/version_1/checkpoints/best_model.pt')
     parser.add_argument('--test_checkpoint',type = str,default='/sda1/zzwang/decopm3/AdsorbFlow2026/outputs/debugflow_2/version_0/checkpoints/best_model.pt')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--test_epochs', type=int, default=5)
