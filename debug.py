@@ -1,8 +1,15 @@
 from utils.parse_args import parse_args
 from configs.oc_dataset_config import get_dataset_info
-from ocp_data.get_oc_datasets import get_dataloaders
+from ocp_data.get_oc_datasets import get_dataloaders, get_dataloader_for_src
 from ocp_data.set_dataset_path import set_path
-from train_epoch import prepare_batch_data,test_adsorb,evaluate_reconstruction,load_model_weights,evaluate_flow_sample
+from train_epoch import (
+    prepare_batch_data,
+    test_adsorb,
+    evaluate_reconstruction,
+    load_model_weights,
+    evaluate_flow_sample,
+    generate_flow_pred_lmdb,
+)
 import torch
 from models.get_models import get_autoencoder,get_goat
 import numpy as np
@@ -82,6 +89,19 @@ def debug_eval_flow_sample(args, device, dtype):
     results = evaluate_flow_sample(model, loader, args, device, dtype)
     analyze_results(results)
 
+
+def debug_generate_flow_lmdb(args, device, dtype):
+    assert args.probabilistic_model == "flow", "generate_lmdb 仅支持 flow 模型"
+    flow_ckpt = args.test_checkpoint
+    model, _, _ = get_goat(args, device)
+    model = load_model_weights(model, flow_ckpt, device)
+    src = args.generate_lmdb_src or args.val_src
+    loader = get_dataloader_for_src(args, src, shuffle=False)
+    generate_flow_pred_lmdb(
+        model, loader, args, device, dtype, args.generate_lmdb_path
+    )
+
+
 def analyze_results(results):
     """
     打印详细的误差统计数据
@@ -140,8 +160,11 @@ if __name__ == "__main__":
     args.atom_lut = lut.to(device)
 
     #debug_eval_recon(args,device,dtype)
-    debug_eval_flow_sample(args,device,dtype)
-
+    # if args.generate_lmdb_path:
+    #     debug_generate_flow_lmdb(args, device, dtype)
+    # else:
+    #     debug_eval_flow_sample(args, device, dtype)
+    debug_generate_flow_lmdb(args, device, dtype)
     #debug_vae(args, next(iter(get_dataloaders(args)['train'])), device)
     #debug_data_info(args)
 

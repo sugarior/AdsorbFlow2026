@@ -1,3 +1,7 @@
+import pickle
+from pathlib import Path
+
+import lmdb
 import torch
 from tqdm import tqdm
 from torch.nn import functional as F
@@ -245,6 +249,65 @@ def evaluate_flow_sample(model, loader, args, device, dtype):
         current_mae = (dist * adsorbate_mask.squeeze()).sum() / (adsorbate_mask.sum() + 1e-8)
         results.append(current_mae.item())
     return results
+
+
+@torch.no_grad()
+def generate_flow_pred_lmdb(model, loader, args, device, dtype, out_dir):
+    """
+    按 batch 推理 flow，将 x_pred_phys（物理空间 Å）写回每条样本的 pos，其余字段不变；
+    使用 batch.batch（与 prepare_batch_data 中 batch_idx 一致）拆分图并顺序写入 LMDB。
+
+    输出：out_dir/data.lmdb，键 b\"length\"（pickle int）与 b\"0\"..b\"N-1\"（pickle PyG Data），
+    与 ocpmodels.datasets.LmdbDataset 扫描目录下 *.lmdb 的格式一致。
+    """
+    model.eval()
+    out_path = Path(out_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    db_file = out_path / "data.lmdb"
+
+    env = lmdb.open(
+        str(db_file),
+        map_size=1 << 42,
+        subdir=False,
+        max_readers=64,
+    )
+    global_idx = 0
+    try:
+        for batch in tqdm(loader, desc="generate flow lmdb"):
+            batch = batch.to(device)
+            x, h, x_init, _, node_mask, edge_index, edge_attr, adsorbate_mask, batch_idx = (
+                prepare_batch_data(args, batch, device, dtype, partition="Test")
+            )
+            x_pred_norm, _ = model.sample(
+                x_init,
+                h,
+                node_mask,
+                edge_index,
+                edge_attr,
+                context=None,
+                adsrobate_mask=adsorbate_mask,
+                batch_idx=batch_idx,
+            )
+            x_pred_phys = uf.denormalize_pos(x_pred_norm, args.pos_mean, args.pos_std)
+
+            graphs = batch.to_data_list()
+            n_graphs = len(graphs)
+            assert n_graphs == int(batch.batch.max().item()) + 1, "batch 图数与 batch.batch 不一致"
+
+            with env.begin(write=True) as txn:
+                for g in range(n_graphs):
+                    mask = batch.batch == g
+                    pos_new = x_pred_phys[mask].detach().cpu().to(dtype=graphs[g].pos.dtype)
+                    d_out = graphs[g].clone().cpu()
+                    d_out.pos = pos_new
+                    txn.put(str(global_idx).encode("ascii"), pickle.dumps(d_out))
+                    global_idx += 1
+        with env.begin(write=True) as txn:
+            txn.put(b"length", pickle.dumps(global_idx))
+    finally:
+        env.close()
+
+    print(f"✅ 已写入 {global_idx} 条样本 → {db_file}")
 
 
 def load_model_weights(model, checkpoint_path, device):

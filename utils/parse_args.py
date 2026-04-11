@@ -32,6 +32,18 @@ def parse_args():
     parser.add_argument('--oc22_stats_path', type=str, default='./configs/oc22_stats.pt')
     parser.add_argument('--num_atom_types', type=int, default=100)
     parser.add_argument('--cif_save_path',type = str ,default='/sda1/zzwang/decopm3/AdsorbFlow2026/cif/debug_flow_vae648')
+    parser.add_argument(
+        '--generate_lmdb_path',
+        type=str,
+        default=None,
+        help='若指定为目录：将 flow 推理得到的物理坐标写入该目录下 data.lmdb（键 length + 0..N-1，与 OCP LmdbDataset 多文件之一格式一致）',
+    )
+    parser.add_argument(
+        '--generate_lmdb_src',
+        type=str,
+        default=None,
+        help='生成 LMDB 时读取的源数据路径（LMDB 目录或单文件）；不填则使用 val_src',
+    )
     #文件夹设置
     parser.add_argument('--output_dir', type=str, default='./outputs')
 

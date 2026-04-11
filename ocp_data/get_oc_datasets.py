@@ -142,3 +142,22 @@ def get_dataloaders(args):
         dataloaders[split_name] = loader
 
     return dataloaders
+
+
+def get_dataloader_for_src(args, src, shuffle=False, batch_size=None):
+    """
+    从单个 LMDB 路径构造与训练一致的 DataLoader（用于导出、评估等）。
+    """
+    if src is None:
+        raise ValueError("get_dataloader_for_src: src 不能为 None")
+    bs = batch_size if batch_size is not None else args.batch_size
+    raw_dataset = LmdbDataset({"src": src})
+    flow_dataset = OCP2FlowDataset(raw_dataset, cutoff=args.cutoff)
+    return DataLoader(
+        flow_dataset,
+        batch_size=bs,
+        shuffle=shuffle,
+        num_workers=args.num_workers,
+        collate_fn=data_list_collater,
+        pin_memory=True if torch.cuda.is_available() else False,
+    )
