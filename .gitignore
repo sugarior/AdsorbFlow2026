@@ -10,3 +10,5 @@ results/
 wandb/
 .vscode/
 *.json
+*.traj
+./traj
