@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AdsorbFlow Training Script')
-    parser.add_argument('--exp_name', type=str, default='debugflow_3_vae_648_All')
+    parser.add_argument('--exp_name', type=str, default='debugflow_3_vae_648_mae')
 
     #账户设置
     parser.add_argument('--wandb_project', type=str, default='AdsorbFlow2026-flow')
