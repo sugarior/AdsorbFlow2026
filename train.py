@@ -11,7 +11,7 @@ from collections import OrderedDict
 from utils.parse_args import parse_args
 from models.get_models import get_optim, get_goat
 from configs.oc_dataset_config import get_dataset_info
-from train_epoch import train_epoch, test_adsorb
+from train_epoch import train_epoch, test_adsorb,get_val_mae
 from ocp_data.get_oc_datasets import get_dataloaders
 import utils.utilis_func as uf
 from utils.utilis_func import setup_experiment_dir, wandb_setup,load_checkpoint,create_logger
@@ -109,11 +109,12 @@ def main(args):
     gradnorm_queue = uf.Queue()
     gradnorm_queue.add(3000)
     best_val_loss = 1e8
+    best_val_mae = 1e8
 
     # 8. 断点续训 (保持原样)
     begin_epoch = 0
     if args.resume is not None:
-        model, model_ema,optim, begin_epoch, best_val_loss = load_checkpoint(model, model_ema,optim,args.resume,device)
+        model, model_ema,optim, begin_epoch, _ = load_checkpoint(model, model_ema,optim,args.resume,device)
 
         for param_group in optim.param_groups:
             param_group['lr'] = args.lr
@@ -144,10 +145,31 @@ def main(args):
                 args=args, loader=dataloaders['val'], epoch=epoch, 
                 eval_model=model_ema, device=device, dtype=dtype
             )
-            
+            val_mae = get_val_mae(
+                model=model_ema, 
+                loader=dataloaders['val'], 
+                args=args, 
+                device=device, 
+                dtype=dtype
+            )
             # C. 模型保存
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
+            # if val_loss < best_val_loss:
+            #     best_val_loss = val_loss
+            #     save_path = os.path.join(checkpoint_dir, "best_model.pt")
+            #     checkpoint = {
+            #         "model": model.state_dict(), # 注意：去除了 .module
+            #         "model_ema": model_ema.state_dict(),
+            #         "opt": optim.state_dict(),
+            #         "args": args,
+            #         "epoch": epoch,
+            #         "val_loss": val_loss
+            #     }
+            #     torch.save(checkpoint, save_path)
+            #     logger.info(f"★ New Best Val Loss: {val_loss:.4f}! Saved to {save_path}")
+            #
+            #使用mae作为标准保存ckpt
+            if val_mae < best_val_mae:
+                best_val_mae = val_mae
                 save_path = os.path.join(checkpoint_dir, "best_model.pt")
                 checkpoint = {
                     "model": model.state_dict(), # 注意：去除了 .module
@@ -155,17 +177,20 @@ def main(args):
                     "opt": optim.state_dict(),
                     "args": args,
                     "epoch": epoch,
-                    "val_loss": val_loss
+                    "val_loss": val_loss,
+                    "val_mae":val_mae
                 }
                 torch.save(checkpoint, save_path)
-                logger.info(f"★ New Best Val Loss: {val_loss:.4f}! Saved to {save_path}")
+                logger.info(f"★ New Best Val mae: {val_mae:.4f}! Saved to {save_path}")
+
 
             current_global_step = (epoch + 1) * len(dataloaders['train'])
             # 日志打印
-            logger.info(f"E:{epoch} | Train:{train_loss:.4f} | Val:{val_loss:.4f} | BestVal:{best_val_loss:.4f}")
+            logger.info(f"E:{epoch} | Train:{train_loss:.4f} | Val:{val_mae:.4f} | BestVal:{best_val_mae:.4f}")
             wandb.log({"epoch": epoch,
             "epoch_metrics/train_loss": train_loss,
             "epoch_metrics/val_loss": val_loss,
+            "epoch_metrics/val_mae": val_mae,
             "train/step": current_global_step
             })
 

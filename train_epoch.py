@@ -250,6 +250,17 @@ def evaluate_flow_sample(model, loader, args, device, dtype):
         results.append(current_mae.item())
     return results
 
+@torch.no_grad()
+def get_val_mae(model, loader, args, device, dtype):
+    """
+    包装函数：调用 evaluate_flow_sample 并执行结果的聚合逻辑。
+    """
+    # 1. 获取所有样本的 MAE 结果列表
+    mae_results = evaluate_flow_sample(model, loader, args, device, dtype)
+        
+    avg_mae = sum(mae_results) / len(mae_results)
+    
+    return avg_mae
 
 @torch.no_grad()
 def generate_flow_pred_lmdb(model, loader, args, device, dtype, out_dir):

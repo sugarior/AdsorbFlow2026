@@ -35,13 +35,13 @@ def parse_args():
     parser.add_argument(
         '--generate_lmdb_path',
         type=str,
-        default=None,
+        default='/sda1/zzwang/decopm3/AdsorbFlow2026/lmdb/debug_flow_648',
         help='若指定为目录：将 flow 推理得到的物理坐标写入该目录下 data.lmdb（键 length + 0..N-1，与 OCP LmdbDataset 多文件之一格式一致）',
     )
     parser.add_argument(
         '--generate_lmdb_src',
         type=str,
-        default=None,
+        default='/sda1/zzwang/decopm3/oc22data/is2res_total_train_val_test_lmdbs/data/oc22/is2re-total/val_id',
         help='生成 LMDB 时读取的源数据路径（LMDB 目录或单文件）；不填则使用 val_src',
     )
     #文件夹设置

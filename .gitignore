@@ -12,3 +12,6 @@ wandb/
 *.json
 *.traj
 ./traj
+*.lmdb
+*.lmdb-lock
+*.npz
